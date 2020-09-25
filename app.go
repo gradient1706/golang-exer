@@ -1,23 +1,30 @@
 package main
 
 import (
-	api_config "config"
-	api_dao "dao"
+	api_config "github.com/gradient1706/golang-exer/config"
+	api_dao "github.com/gradient1706/golang-exer/dao"
 	"encoding/json"
 	fmt "fmt"
 	"log"
-	api_package "models"
+	api_package "github.com/gradient1706/golang-exer/models"
 	"net/http"
-
-	bson_api "github.com/globalsign/mgo/bson"
 	"github.com/gorilla/mux"
+	// "time"
+	// "context"
+	// "go.mongodb.org/mongo-driver/bson"
+	// "go.mongodb.org/mongo-driver/mongo"
+	// "go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	// bson_api "github.com/globalsign/mgo/bson"
+    // "go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 var config = api_config.Config{}
 var dao = api_dao.ProductDAO{}
 
-// GET list of Products
+// // GET list of Products
 func AllProductsEndPoint(w http.ResponseWriter, r *http.Request) {
+
 	Products, err := dao.FindAll()
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
@@ -88,7 +95,7 @@ func CreateProductEndPoint(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
-	product.ID = bson_api.NewObjectId()
+	product.ID = primitive.NewObjectID()
 	if err := dao.Insert(product); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -96,7 +103,7 @@ func CreateProductEndPoint(w http.ResponseWriter, r *http.Request) {
 	respondWithJson(w, http.StatusCreated, product)
 }
 
-// PUT update an existing product
+// // PUT update an existing product
 func UpdateProductEndPoint(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var product api_package.Product
@@ -111,7 +118,7 @@ func UpdateProductEndPoint(w http.ResponseWriter, r *http.Request) {
 	respondWithJson(w, http.StatusOK, map[string]string{"result": "success"})
 }
 
-// DELETE an existing product
+// // DELETE an existing product
 func DeleteProductEndPoint(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var product api_package.Product
@@ -137,7 +144,7 @@ func respondWithJson(w http.ResponseWriter, code int, payload interface{}) {
 	w.Write(response)
 }
 
-// Parse the configuration file 'config.toml', and establish a connection to DB
+// // Parse the configuration file 'config.toml', and establish a connection to DB
 func init() {
 	config.Read()
 
@@ -146,8 +153,97 @@ func init() {
 	dao.Connect()
 }
 
-// Define HTTP request routes
 func main() {
+	//client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
+	// client, err := mongo.NewClient(options.Client().ApplyURI("mongodb+srv://user:6huJmxlyu5fegs3G@cluster0.5sgx9.mongodb.net/Products_db?retryWrites=true&w=majority"))
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	// err = client.Connect(ctx)
+	// if err != nil{
+	// 	log.Fatal(err)
+	// }
+	// defer  client.Disconnect(ctx)
+	
+	// productDatabase := client.Database("Products_db")
+	//productCollection := productDatabase.Collection("product")
+
+	// Post one
+	// productResult, err := productCollection.InsertOne(ctx, bson.D{
+	// 	{Key: "productID", Value: 2},
+	// 	{Key: "quantity", Value: 5},
+	// })
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Printf("Inserted %v documents into product collection!\n", productResult.InsertedID)
+
+	
+
+	//Get one
+	// var product bson.M
+	// if err = productCollection.FindOne(ctx, bson.M{}).Decode(&product); err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Println(product)
+
+	// Get with a filter
+	// filterCursor, err := productCollection.Find(ctx, bson.M{"productID": 1})
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// var productsFiltered []bson.M
+	// if err = filterCursor.All(ctx, &productsFiltered); err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Println(productsFiltered)
+
+	
+
+	// Delete
+	// objID, err := primitive.ObjectIDFromHex("5f4a9cfa871026f9d1334508")
+	// result, err := productCollection.DeleteOne(ctx, bson.M{"_id": objID})
+	
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Printf("DeleteOne removed %v document(s)\n", result.DeletedCount)
+
+	// Update but keep id
+	// result, err := productCollection.ReplaceOne(
+	// 	ctx,
+	// 	bson.M{"productID": 1},
+	// 	bson.M{
+	// 		"productID": 1,
+	// 		"quantity": 10,
+	// 	},
+	// )
+	// fmt.Printf("Replaced %v Documents!\n", result.ModifiedCount)
+
+	// Get all
+	// cursor, err := productCollection.Find(ctx, bson.M{})
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// var products []bson.M
+	// if err = cursor.All(ctx, &products); err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Println(products)
+
+	// Map with object
+	// var products []api_package.Product
+	// cursor, err := productCollection.Find(ctx, bson.M{"productID": 1})
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// if err = cursor.All(ctx, &products); err != nil {
+	// 	panic(err)
+	// }
+	// fmt.Println(products)
+
 	r := mux.NewRouter()
 	r.HandleFunc("/products", AllProductsEndPoint).Methods("GET")
 	r.HandleFunc("/products", CreateProductEndPoint).Methods("POST")

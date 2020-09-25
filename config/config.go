@@ -2,7 +2,6 @@ package config
 
 import (
 	"log"
-
 	"github.com/BurntSushi/toml"
 )
 
